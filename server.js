@@ -1,8 +1,9 @@
 const http = require("http");
-const mysql = require('mysql');
+const mysql = require("mysql");
+const fs = require("fs");
 
 // Create connection to DB.
-let con = mysql.createConnection({
+let db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "password",
@@ -17,13 +18,20 @@ http.createServer((req, res) =>  {
   console.log(`Request received: {method: '${req.method}' url: '${req.url}'}`);
 
   // Connecting to DB.
-  con.connect(function(err) {
+  db.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
-    con.query(sql, function (err, result) {
+
+    // Select query.
+    db.query(sql, function (err, result) {
       if (err) throw err;
-      console.log("Result: " + result);
+      console.log("Result: " + JSON.stringify(result));
+
+      // Creating and writing to file. Overwrites if it exists.
+      fs.write('result.txt', JSON.stringify(result), function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+      });
     });
   });
-  
 }).listen(8000);
