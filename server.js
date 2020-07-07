@@ -10,28 +10,32 @@ let db = mysql.createConnection({
   database: "cego"
 });
 
+// Connecting to DB.
+db.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+
+});
+
 // Testing query.
 let sql = "SELECT * FROM users";
 
 http.createServer((req, res) =>  {
 
   console.log(`Request received: {method: '${req.method}' url: '${req.url}'}`);
-
-  // Connecting to DB.
-  db.connect(function(err) {
+ 
+  // Select query.
+  db.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("Connected!");
+    //console.log("Result: " + JSON.stringify(result));
 
-    // Select query.
-    db.query(sql, function (err, result) {
+    // Creating and writing to file. Overwrites if it exists.
+    fs.writeFile('result.txt', JSON.stringify(result), function (err) {
       if (err) throw err;
-      console.log("Result: " + JSON.stringify(result));
-
-      // Creating and writing to file. Overwrites if it exists.
-      fs.write('result.txt', JSON.stringify(result), function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-      });
+      console.log('Saved!');
     });
   });
+  
 }).listen(8000);
+
+
