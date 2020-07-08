@@ -38,26 +38,33 @@ http.createServer((req, res) =>  {
     if (err) throw err;
     console.log(`SELECT query successful: "${sql}"`);
 
-    // Appends to file, creates if it doesn't exist.
-    fs.appendFile('./result.txt', JSON.stringify(result), function (err) {
-      if (err) throw err;
+    try {
+      // Appends to file, creates if it doesn't exist.
+      fs.appendFileSync('./result.txt', JSON.stringify(result));      
       console.log('Saved to file!');
-    });   
+
+      // Removes "select *" or "select 'column name'" with "delete".
+      let tempArr = sql.split('');
+      tempArr.splice(0, tempArr.indexOf('f'), 'delete ');
+
+      let rmsql = tempArr.join('');    
+
+      // Checks for file, it missing indicates an error.
+      if (fs.existsSync('./result.txt')) {
+        
+        // Deletion query
+        db.query(rmsql, function (err, result) {
+          if (err) throw err;
+          console.log(`DELETE query successful: "${rmsql}"`);
+        });
+      }
+    } catch (err) {
+      console.log('Was unable to append to file or execute DELETE query');
+      console.error(err);
+    }
   });
 
-  // Removes "select *" or "select 'column name'" with "delete".
-  let tempArr = sql.split('');
-  tempArr.splice(0, tempArr.indexOf('f'), 'delete ');
-  
-  let rmsql = tempArr.join('');
-  
-  // Deletion query
-  db.query(rmsql, function (err, result) {
-    if (err) throw err;
-    console.log(`DELETE query successful: "${rmsql}"`);
-  });
-
-  // Stops looping for Postman, as it would otherwise wait for answer.
+  // Stops Postman from looping, as it would otherwise wait for answer.
   res.writeHead(200);
   res.end();
 
