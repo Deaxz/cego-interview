@@ -19,7 +19,7 @@ I had problems understanding exactly what is implied with, "verify that data int
 * Set up the database using the provided sqldump (Command line client or similar)
 * Launch server.js via node command in the console
 
-## Use/Test
+## Use/Test:
 * Use API caller (Postman or similar), where url is in the format "localhost:8000/?sql=select+*+from+users" and query spaces are '+' characters.
 * Confirm output by using Command line client or similar, and by reading the result.txt file.
 
