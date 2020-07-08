@@ -22,7 +22,7 @@ fs.unlink('./result.txt', (err) => {
   if (err) 
     console.log("No previous result file");
   else 
-    console.log("Old result was deleted.");
+    console.log("Old result file was deleted.");
 });
 
 http.createServer((req, res) =>  {
@@ -36,11 +36,12 @@ http.createServer((req, res) =>  {
   // Select query.
   db.query(sql, function (err, result) {
     if (err) throw err;
+    console.log(`SELECT query successful: "${sql}"`);
 
-    // Creating and writing to file. Overwrites if it exists.
-    fs.appendFileSync('result.txt', JSON.stringify(result), function (err) {
+    // Appends to file, creates if it doesn't exist.
+    fs.appendFile('./result.txt', JSON.stringify(result), function (err) {
       if (err) throw err;
-      console.log('Saved!');
+      console.log('Saved to file!');
     });   
   });
 
@@ -53,6 +54,11 @@ http.createServer((req, res) =>  {
   // Deletion query
   db.query(rmsql, function (err, result) {
     if (err) throw err;
+    console.log(`DELETE query successful: "${rmsql}"`);
   });
+
+  // Stops looping for Postman, as it would otherwise wait for answer.
+  res.writeHead(200);
+  res.end();
 
 }).listen(8000);
